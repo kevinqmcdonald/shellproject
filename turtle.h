@@ -27,14 +27,12 @@
 #define LAST 3
 
 /* Command line arguments structure */
- typedef struct comargs
- {
+ typedef struct comargs {
      char   *args[MAXARGS];
  }  ARGTAB;
 
 /* command line structure */
- typedef struct com
- {
+ typedef struct com {
      char   *comname;
      int     remote;
      int     infd;
@@ -44,16 +42,14 @@
  }  COMMAND;
 
 /* Alias Structure */
- struct alias
- {
+ struct alias {
      int    used;
      char  *alname;
      char  *alstring;
  };
 
 /* cache table structure */
- typedef struct cache
- {
+ typedef struct cache {
      char   *cmd;
      char   *hostport;
  }  CACHE;
