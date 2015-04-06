@@ -125,16 +125,20 @@ cmd.file:       WORD {
                 }
             ;
 arguments:      WORD {
-
+                    (p = &comtab[currcmd])->atptr = Allocate(ARGTAB);
+                    currarg = 1;
+                    p->atptr->args[currarg++] = mkstr($1);
                 }
             |   STRING {
-
+                    (p = &comtab[currcmd])->atptr = Allocate(ARGTAB);
+                    currarg = 1;
+                    p->atptr->args[currarg++] = mkstr($1);
                 }
             |   arguments WORD {
-
+                    p->atptr->args[currarg++] = mkstr($2);
                 }
             |   arguments STRING {
-
+                    p->atptr->args[currarg++] = mkstr($2);
                 }
             ;
 input:          LT WORD {
