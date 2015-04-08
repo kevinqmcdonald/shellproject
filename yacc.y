@@ -18,10 +18,10 @@
 }
 
 %token <i> LT GT AMP LPAREN RPAREN PIPE DOT DDOT DEBUG
-%token <i> SET PATH PROMPT CD BYE ALIAS UNALIAS PwD EXTEND
+%token <i> SET PROMPT CD BYE ALIAS UNALIAS PwD EXTEND
 %token <i> ALIASLOOP
 %token <w> WORD
-%token <s> STRING
+%token <s> STRING PATH QWORD
 
 %token <w> cmd.file
 
