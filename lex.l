@@ -3,6 +3,13 @@
 %}
 
 %%
+bye							return BYE;
+cd							return CD;
+alias						return ALIAS;
+unalias						return UNALIAS;
+setenv						return SET;
+unsetenv					return UNSET;
+pwd							return PwD;
 "[a-zA-z][a-zA-Z0-9]*"		yylval.s=strdup(yytext); return WORD;
 [a-zA-Z0-9\/.-]+			yylval.s=strdup(yytext); return PATH;
 \|							return PIPE;
@@ -16,11 +23,4 @@
 )							return RPAREN;
 \.							return DOT;
 \.\.						return DDOT;
-bye							return BYE;
-cd							return CD;
-alias						return ALIAS;
-unalias						return UNALIAS;
-setenv						return SET;
-unsetenv					return UNSET;
-pwd							return PwD;
 %%

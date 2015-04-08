@@ -21,7 +21,7 @@
 %token <i> SET PROMPT CD BYE ALIAS UNALIAS PwD EXTEND
 %token <i> ALIASLOOP
 %token <w> WORD
-%token <s> STRING PATH QWORD
+%token <s> STRING PATH
 
 %token <w> cmd.file
 
