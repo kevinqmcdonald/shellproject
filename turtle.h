@@ -59,5 +59,38 @@
  extern COMMAND      comtab[];
  extern CACHE        cachetab[];
  extern char        *pathtab[];
+ extern int         currcmd;
+ extern int         currcache;
+ extern int         lastcurrcmd;
+ extern int         recursive;
+ extern int         pathleng;
+ extern int         currarg;
+ extern int         login;
+ extern int         builtin;
+ extern int         bicmd;
+ extern int         bioutf;
+ extern char        *bistr;
+ extern char        *bistr2;
+ extern int         debug;
+ extern int         IwasSet;
+ extern int         err;
+ extern int         error_somewhere;
+ extern int         ap;
+ extern int         cmd_has_tail;
+ extern int         backgnd;
+ extern int         concurrp;
+ extern int         eventcount;
+ extern char        home[];
+ extern char        *shname;
+ extern char        *prompt_string;
+ extern int         user_defined_prompt;
+ extern char        srcf[];
+ extern char        distf[];
+ extern int         append;
+ extern int         loop;
 
-#endif
+
+ #define NIL(x) (x *) 0
+ #define copystring(a, b) strcpy((a=(char *)malloc(strlen(b)+1)), b)
+ #define mkstr(a) (char *)makestring(a)
+ #define Allocate(t) (t *)malloc(sizeof(t))
