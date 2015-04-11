@@ -17,11 +17,11 @@
     char *w;
 }
 
-%token <i> LT GT AMP LPAREN RPAREN PIPE DOT DDOT DEBUG
+%token <i> LT GT AMP LPAREN RPAREN PATH PIPE DOT DDOT DEBUG
 %token <i> SET PROMPT CD BYE ALIAS UNALIAS PwD EXTEND
 %token <i> ALIASLOOP
-%token <w> WORD
-%token <s> STRING PATH
+%token <w> WORD FILE
+%token <s> STRING
 
 %token <w> cmd.file
 
@@ -106,6 +106,9 @@ builtin.cmd:    SET PATH dir.list useless.redir {
                     bicmd = CDX;
                     bistr = mkstr($2);
                 }
+            |   CD {
+                    bicmd = CHD;
+            }
 simple.cmd:     cmd.file {
                     commtab[currcmd].comname = mkstr($1);
                     commtab[currcmd].atptr = NIL(ARGTAB);

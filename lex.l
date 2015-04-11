@@ -10,8 +10,15 @@ unalias						return UNALIAS;
 setenv						return SET;
 unsetenv					return UNSET;
 pwd							return PwD;
-"[a-zA-z][a-zA-Z0-9]*"		yylval.s=strdup(yytext); return WORD;
-[a-zA-Z0-9\/.-]+			yylval.s=strdup(yytext); return PATH;
+prompt						return PROMPT;
+PATH						return PATH;
+"[a-zA-Z][a-zA-Z0-9]*"		{ yylval.s=strdup(yytext); 
+								return STRING;
+							}
+([a-zA-Z][a-zA-Z0-9]* | 
+[a-zA-Z0-9\/.-]+)			{ yylval.s=strdup(yytext);
+								return WORD;
+							}
 \|							return PIPE;
 \\							return BACKSLASH;
 "							return QUOTE;
@@ -23,4 +30,5 @@ pwd							return PwD;
 )							return RPAREN;
 \.							return DOT;
 \.\.						return DDOT;
+.							return yyerror("Invalid input entered");
 %%

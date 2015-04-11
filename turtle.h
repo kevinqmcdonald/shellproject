@@ -6,6 +6,12 @@
 #ifndef TURTLE_H
 #define TURTLE_H
 
+#define CDX 1
+#define CHD 2
+#define SETT 3
+#define SETPROMPT 4
+#define SETPATH 5
+#define ALIAS 6
 
 #define MAXCMDS 50
 #define MAXARGS 300
@@ -89,8 +95,12 @@
  extern int         append;
  extern int         loop;
 
+ void yyerror(char *s) {
+     fprintf(stderr, "%s\n", s);
+ }
 
  #define NIL(x) (x *) 0
  #define copystring(a, b) strcpy((a=(char *)malloc(strlen(b)+1)), b)
  #define mkstr(a) (char *)makestring(a)
  #define Allocate(t) (t *)malloc(sizeof(t))
+ #define turtErr(s) yyerror(s)
