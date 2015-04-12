@@ -160,34 +160,47 @@
     printenv :
         PENV
         {
-            comtable[currcmd].comname = "printenv";
-            comtable[currcmd].code = PRINTENV;
+            comtab[currcmd].comname = "printenv";
+            comtab[currcmd].code = PRINTENV;
         };
 
     setenv :
         SET WORD WORD
         {
-            comtable[currcmd].comname = "setenv";
-            comtable[currcmd].code = SETENV;
+            comtab[currcmd].atptr[0] = $2;
+            comtab[currcmd].atptr[1] = $3;
+            comtab[currcmd].comname = "setenv";
+            comtab[currcmd].code = SETENV;
         };
+
+    unsetenv :
+        UNSET WORD
+        {
+            comtab[currcmd].comname = "unsetenv";
+            comtab[currcmd].code = UNSETENV;
+            comtab[currcmd].atptr[0] = $2;
+        }
 
     printalias :
         ALIAS
         {
-            comtable[currcmd].comname = "printalias";
-            comtable[currcmd].code = PRINTALIAS;
+            comtab[currcmd].comname = "printalias";
+            comtab[currcmd].code = PRINTALIAS;
         };
 
     setalias :
         ALIAS WORD WORD
         {
-            comtable[currcmd].comname = "setalias";
-            comtable[currcmd].code = SETALIAS;
+            comtab[currcmd].atptr[0] = $2;
+            comtab[currcmd].atptr[1] = $3;
+            comtab[currcmd].comname = "setalias";
+            comtab[currcmd].code = SETALIAS;
         };
 
     removealias :
-        UALIAS
+        UALIAS WORD
         {
-            comtable[currcmd].comname = "unalias";
-            comtable[currcmd].code = UNALIAS;
+            comtab[currcmd].atptr[0] = $2;
+            comtab[currcmd].comname = "unalias";
+            comtab[currcmd].code = UNALIAS;
         };

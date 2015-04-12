@@ -31,12 +31,12 @@ void printalias(void) {
 	}
 }
 
-bool isalias(char *name) {
-	bool ret = FALSE;
+int isalias(char *name) {
+	int ret = -1;
 	int i = 0;
 	for(i; i<aliasno; i++) {
 		if(strcmp(name, aliastab[i].alname) == 0) {
-			ret = TRUE;
+			ret = i;
 			break;
 		}
 	}
@@ -87,7 +87,144 @@ int removealias(char *name) {
 }
 
 void execute_cmd(void) {
-	
+	currcmd = currcmd % MAXCMDS;
+	int curr = currcmd;
+
+	if(comtab[curr].external == 0) {
+		// Built-in Command
+		alias_root = NULL;
+
+		switch(comtab[curr].code) {
+			case CHD : {
+				char *home = getenv("HOME");
+				chdir(home);
+				break;
+			}
+			case CDX : {
+				if(chdir(comtab[curr].atptr[0]) == -1)
+					printf("Invalid path or directory: %s\n", comtable[curr].atptr[0]);
+				break;
+			}
+			case SETENV : {
+				set_env(comtab[curr].atptr[0], comtab[curr].atptr[1]);
+				break;
+			}
+			case UNSETENV : {
+				unset_env(comtab[curr].atptr[0]);
+				break;
+			}
+			case PRINTENV : {
+				print_env();
+				break;
+			}
+			case SETALIAS : {
+				setalias(comtab[curr].atptr[0], comtab[curr].atptr[1]);
+				break;
+			}
+			case UNALIAS : {
+				removealias(comtab[curr].atptr[0]);
+				break;
+			}
+			case PRINTALIAS : {
+				printalias();
+				break;
+			}
+			case PWD : {
+				char cwd[1024];
+				getcwd(cwd, sizeof(cwd));
+				printf("%s\n", cwd);
+				break;
+			}
+		}
+	}
+	else {
+		// Handle aliasing
+		int acurr = isalias(comtab[curr].comname);
+
+		if(acurr != -1) {
+			comtable[curr].external = 0;
+			if(aliasroot == NULL) {
+				aliasroot = aliastab[acurr].alname;
+			}
+			// Check for infinite aliasing
+			if(strcmp(aliasroot, aliastab[acurr].alstring)) {
+				printf("ERR: Infinite aliasing detected. Exiting...\n");
+				return;
+			}
+			else {
+				ignoreEOF = 1;
+				parse_string(aliastab[acurr].alstring);
+				execute_cmd();
+			}
+		}
+		else {
+			// External Command
+			aliasroot = NULL;
+			pid_t child = fork();
+			int stat;
+			int success = -1;
+
+			while(waitpid(child, &stat, 0) == -1) {
+				if(errno != EINTR) {
+					stat = -1;
+					break;
+				}
+			}
+
+			if(child < 0)
+				exit(1);
+			else if(child == 0) {
+				// Prepare for execv call
+				char tmp[256];
+				char *paths = strcpy(tmp, getenv("PATH"));
+				char *tok = strtok(paths, ":");
+				char *cmp = "./";
+
+				while(tok) {
+					char place[255];
+					if(comtab[curr].comname[0] == cmp[0] || comtab[curr].comname[0] == cmp[1]) {
+						// If destination is specified 
+						strcpy(place, comtab[curr].comname);
+					}
+					else {
+						// If destination is not specified
+						strcpy(place, tok);
+						strcat(place, "/");
+						// Append command name
+						strcat(place, comtab[curr].comname);
+					}
+
+					char *cmds[comtab[curr].nargs + 2];
+					cmds[0] = place;
+					cmds[comtab[curr].nargs + 1] = (char *)NULL;
+
+					int i = 0;
+					for(i; i<comtab[curr].nargs; i++) {
+						cmds[i+1] = comtab[curr].atptr[i];
+					}
+
+					if(execv(place, cmds) == -1) {
+						tok = strtok(NULL, ":");
+						continue;
+					}
+					else {
+						_exit(0);
+						success = 1;
+						break;
+					}
+				}
+
+				if(success == -1) {
+					printf("ERR: Command not found: %s\n", comtab[curr].comname);
+					_exit(1);
+				}
+			}
+		}
+	}
+
+	currcmd += 1;
+	comtab[currcmd].external = 0;
+	ignoreEOF = 0;
 }
 
 main(){
