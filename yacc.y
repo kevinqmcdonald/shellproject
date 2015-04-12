@@ -14,10 +14,19 @@
     char *string;
 }
 
+<<<<<<< HEAD
 %token <i> LT GT AMP PIPE PENV SET UNSET
 %token <i> CD BYE ALIAS UALIAS PwD 
 %token <string> WORD VARIABLE
 
+=======
+%token <i> LT GT AMP PIPE SET UNSET PENV
+%token <i> CD BYE ALIAS UALIAS PwD 
+%token <string> WORD VARIABLE
+
+
+
+>>>>>>> f8dfcaf88fbc8b929afd45899ab69341b6565c8f
 %%
 
     commands : /* empty */
@@ -178,7 +187,7 @@
             comtab[currcmd].comname = "unsetenv";
             comtab[currcmd].code = UNSETENV;
             comtab[currcmd].atptr[0] = $2;
-        }
+        };
 
     printalias :
         ALIAS
@@ -219,7 +228,10 @@
         |
         GT GT WORD
         {
+            comtab[currcmd].comname = "unalias";
+            comtab[currcmd].code = UNALIAS;
             comtab[currcmd].outfd = $3;
             comtab[currcmd].append = 1;
             printf("Output has been appended to %s\n", $3);
         };
+

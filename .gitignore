@@ -1,2 +1,7 @@
 TurtleShell.sublime-project
 TurtleShell.sublime-workspace
+y.tab.*
+*~
+*.o
+lex.yy.*
+

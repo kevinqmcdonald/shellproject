@@ -20,7 +20,7 @@ lex.yy.c:   lex.l y.tab.h
 y.tab.c y.tab.h:    yacc.y
 	$(YACC) -d yacc.y 
 clean:
-	rm *.o
-	rm y.tab.*
-	rm lex.yy.*
-	rm shell
+	rm -f *.o
+	rm -f y.tab.*
+	rm -f lex.yy.*
+	rm -f shell
