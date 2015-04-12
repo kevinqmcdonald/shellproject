@@ -1,26 +1,26 @@
-YFLAGS        = -d
+PROGRAM = shell
+LEX     = lex
+YACC    = yacc
+YFLAGS  = -d
+CC      = gcc 
+OBJS    = y.tab.o lex.yy.o turtle.o
+SRCS    = y.tab.c lex.yy.c turtle.c
 
-PROGRAM       = calc
-
-OBJS          = yacc.tab.o lex.yy.o turtle.o
-
-SRCS          = yacc.tab.c lex.yy.c turtle.c
-
-CC            = gcc 
-
-all:            $(PROGRAM)
-
-.c.o:           $(SRCS)
-                $(CC) -c $*.c -o $@ -O
-
-yacc.tab.c:        yacc.y
-                bison $(YFLAGS) yacc.y
-
-lex.yy.c:       lex.l 
-                flex lex.l
-
-shell:           $(OBJS)
-                $(CC) $(OBJS)  -o $@ -lfl -lm
-
-clean:;         rm -f $(OBJS) core *~ \#* *.o $(PROGRAM) \
-                y.* lex.yy.* yac.tab.*
+all:        $(PROGRAM)
+shell:      y.tab.o lex.yy.o turtle.o
+	$(CC) -o shell turtle.o lex.yy.o y.tab.o
+turtle.o:   turtle.c
+	$(CC) -c turtle.c
+lex.yy.o:   y.tab.h lex.yy.c
+	$(CC) -c lex.yy.c 
+y.tab.o:    y.tab.c 
+	$(CC) -c y.tab.c 
+lex.yy.c:   lex.l y.tab.h
+	$(LEX) lex.l 
+y.tab.c y.tab.h:    yacc.y
+	$(YACC) -d yacc.y 
+clean:
+	rm *.o
+	rm y.tab.*
+	rm lex.yy.*
+	rm shell
