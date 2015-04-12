@@ -11,7 +11,7 @@
 #ifndef TURTLE_H
 #define TURTLE_H
 
-#define TURTLE_PROMPT printf("%s\n tsh $ ", getPWD) 
+#define TURTLE_PROMPT printf("tsh $ ") 
 #define getHOME getenv("HOME")
 #define getPWD getenv("PWD")
 
