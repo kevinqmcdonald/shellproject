@@ -97,6 +97,67 @@ int removealias(char *name) {
 	return SYSERR;
 }
 
+char * removeQuotes( char* in ) {
+    char * out = in;
+    if( out[0] == '"') {
+        out++;
+        out[strlen(out) - 1] = 0;
+    }
+    return out;
+}
+
+char * expandEnv( char* in ) {
+    char * out = in;
+    int i;
+    int possibleEnv = 0;
+    int envStart;
+    for (i = 0; i < strlen(out); i++) {
+        if( out[i] == '$' ) {
+            envStart = i;
+        }
+        if( out[i] == '{' && i == envStart+1 ) {
+            possibleEnv = 1;
+        }
+        if( out[i] == '}' && possibleEnv ) {
+            char temp[5000];
+            char * envVar;
+
+            memcpy( temp, &out[envStart], i-envStart+1 );
+            temp[i-envStart+1] = '\0';
+            copystring( envVar, temp );
+            envVar = envVar + 2;
+            envVar[i-envStart-2] = '\0';
+            
+            out = replace( out, temp, getenv(var) );
+        }
+    
+    }
+    return out;
+}
+
+char * expandTilde( char * in ) {
+    char * out = in;
+    int i;
+    if( strlen(out) == 1 ) {
+        return replace( out, "~", HOME );
+    }
+    if( out[0] == '~' && out[1] == '/' ) {
+        return replace( out, "~", HOME );
+    }
+    if( out[0] == '~' && strlen(out) > 1 ) {
+        out++;
+        struct passwd *pass = getpwnam(out);
+        if( *pass != NULL ) {
+            char temp[5000];
+            strcpy(temp, "/home/");
+            return strcat(temp, pass->pw_name);
+        } else {
+            turtErr("error with getpwnam()\n");
+        }
+    }
+    return out;
+}
+
 void execute_cmd(void) {
 	currcmd = currcmd % MAXCMDS;
 	int curr = currcmd;
@@ -107,21 +168,35 @@ void execute_cmd(void) {
 
 		switch(comtab[curr].code) {
 			case CHD : {
-				char *home = getenv("HOME");
-				chdir(home);
+	            if( chdir(getHOME) ) {
+	                printf("ERROR at line %d\n", __LINE__);
+	                break;
+	            }
+	            setenv("PWD", getHOME, 1);
 				break;
 			}
 			case CDX : {
-				if(chdir(comtab[curr].atptr[0]) == -1)
-					printf("Invalid path or directory: %s\n", comtab[curr].atptr[0]);
+				char* dest = expandTilde( expandEnv( removeQuotes(comtab[curr].atptr[0]) ) );
+				if( chdir(dest) == -1 ) {
+	                printf("ERROR: \n%s is not a directory\n", dest);
+            	}
 				break;
 			}
 			case SETENV : {
-				set_env(comtab[curr].atptr[0], comtab[curr].atptr[1]);
+				char* name = expandTilde( expandEnv( removeQuotes(comtab[curr].atptr[0]) ) );
+	            char* word = expandTilde( expandEnv( removeQuotes(comtab[curr].atptr[1]) ) );
+	            if( setenv( name, word, 1 ) == -1 ) {
+	                printf("setenv failed, could not set %s to %s\n", name, word );
+	            }
 				break;
 			}
 			case UNSETENV : {
-				unset_env(comtab[curr].atptr[0]);
+				char* name = expandTilde( expandEnv( removeQuotes(comtab[curr].atptr[0]) ) );
+	            if( getenv(name) ){
+	                unsetenv(name);
+	            } else {
+	                printf("unsetenv failed, could not find %s\n", name);
+	            }
 				break;
 			}
 			case PRINTENV : {
@@ -129,11 +204,14 @@ void execute_cmd(void) {
 				break;
 			}
 			case SETALIAS : {
-				setalias(comtab[curr].atptr[0], comtab[curr].atptr[1]);
+				char* name = expandTilde( expandEnv( removeQuotes(comtab[curr].atptr[0]) ) );
+	            char* word = expandTilde( expandEnv( removeQuotes(comtab[curr].atptr[1]) ) );
+				setalias(name, word);
 				break;
 			}
 			case UNALIAS : {
-				removealias(comtab[curr].atptr[0]);
+				char* name = expandTilde( expandEnv( removeQuotes(comtab[curr].atptr[0]) ) );
+				removealias(name);
 				break;
 			}
 			case PRINTALIAS : {

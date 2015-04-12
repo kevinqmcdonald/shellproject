@@ -64,9 +64,6 @@
     changedir :
         CD
         {
-            char *home = getenv("HOME");
-            chdir(home);
-
             comtab[currcmd].comname = "cd home";
             comtab[currcmd].code = CHD;
         }
