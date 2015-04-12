@@ -14,7 +14,6 @@
     char *string;
 }
 
-<<<<<<< HEAD
 %token <i> LT GT AMP PIPE PENV SET UNSET
 %token <i> CD BYE ALIAS UALIAS PwD 
 %token <string> WORD VARIABLE
@@ -58,10 +57,6 @@
     whereami :
         PwD
         {
-            char cwd[1024];
-            getcwd(cwd, sizeof(cwd));
-            printf("%s\n", cwd);
-
             comtab[currcmd].comname = "pwd";
             comtab[currcmd].code = PWD;
         };

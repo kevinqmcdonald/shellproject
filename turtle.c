@@ -7,6 +7,7 @@ COMMAND comtab[MAXCMDS];
 int currcmd;
 int aliasno;
 char *aliasroot;
+int ignoreEOF;
 int yylex();
 int yylineno;
 char *yytext;
@@ -102,7 +103,7 @@ void execute_cmd(void) {
 
 	if(comtab[curr].external == 0) {
 		// Built-in Command
-		alias_root = NULL;
+		aliasroot = NULL;
 
 		switch(comtab[curr].code) {
 			case CHD : {
@@ -112,7 +113,7 @@ void execute_cmd(void) {
 			}
 			case CDX : {
 				if(chdir(comtab[curr].atptr[0]) == -1)
-					printf("Invalid path or directory: %s\n", comtable[curr].atptr[0]);
+					printf("Invalid path or directory: %s\n", comtab[curr].atptr[0]);
 				break;
 			}
 			case SETENV : {
@@ -140,9 +141,7 @@ void execute_cmd(void) {
 				break;
 			}
 			case PWD : {
-				char cwd[1024];
-				getcwd(cwd, sizeof(cwd));
-				printf("%s\n", cwd);
+				printf("%s\n", getPWD);
 				break;
 			}
 		}
@@ -152,7 +151,7 @@ void execute_cmd(void) {
 		int acurr = isalias(comtab[curr].comname);
 
 		if(acurr != -1) {
-			comtable[curr].external = 0;
+			comtab[curr].external = 0;
 			if(aliasroot == NULL) {
 				aliasroot = aliastab[acurr].alname;
 			}

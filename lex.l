@@ -38,8 +38,6 @@ pwd						return PwD;
 								return WORD;
 							}
 "|"							return PIPE;
-"\\"						return BACKSLASH;
-\"							return QUOTE;
 "\\"[<>|&]					/* ignore escape chars */;
 [ \t]+						/* ignore whitespace */;
 "<"							return LT;
