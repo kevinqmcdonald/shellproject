@@ -9,6 +9,7 @@ COMMAND comtab[MAXCMDS];
 int currcmd;
 int aliasno;
 char *aliasroot;
+int aliasDepth;
 int ignoreEOF;
 int yylex();
 int yylineno;
@@ -19,6 +20,7 @@ void shellinit(void) {
 	currcmd = 0;
 	aliasno = 0;
 	aliasroot = NULL;
+	aliasDepth = 0;
 }
 
 int set_env(char *name, char *value) {
@@ -32,8 +34,8 @@ int unset_env(char *name) {
 void print_env(void) {
         extern char **environ;
         int i = 0;
-        while(environ[i]) {
-            printf("%s\n", environ[i++] );
+	for(i = 0; environ[i]; i++) {
+		printf("%s\n", environ[i]); 
 	}
 }
 
@@ -185,6 +187,7 @@ void execute_cmd(void) {
 	if(comtab[curr].external == 0) {
 		// Built-in Command
 		aliasroot = NULL;
+                aliasDepth = 0;
 
 		switch(comtab[curr].code) {
 			case CHD : {
@@ -257,19 +260,21 @@ void execute_cmd(void) {
 				aliasroot = aliastab[acurr].alname;
 			}
 			// Check for infinite aliasing
-			if(strcmp(aliasroot, aliastab[acurr].alstring)) {
+			if( aliasDepth > 30 ) {
 				printf("ERR: Infinite aliasing detected. Exiting...\n");
 				return;
 			}
 			else {
 				ignoreEOF = 1;
 				parse_string(aliastab[acurr].alstring);
+				aliasDepth++;
 				execute_cmd();
 			}
 		}
 		else {
 			// External Command
 			aliasroot = NULL;
+			aliasDepth = 0;
 			pid_t child = fork();
 			int stat;
 			int success = -1;

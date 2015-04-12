@@ -78,6 +78,7 @@ typedef int bool;
  extern int         currcmd;
  extern int         aliasno;
  extern char        *aliasroot;
+ extern int 	    aliasDepth;
  extern int         ignoreEOF;
  extern int         yylex();
  extern int         yylineno;
