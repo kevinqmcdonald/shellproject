@@ -175,7 +175,9 @@ char * expandTilde( char * in ) {
     }
     return out;
 }
-
+char * cleanInput( char * in ) {
+	return expandTilde( expandEnv( removeQuotes( in ) ) );
+}
 void execute_cmd(void) {
 	currcmd = currcmd % MAXCMDS;
 	int curr = currcmd;
@@ -194,7 +196,7 @@ void execute_cmd(void) {
 				break;
 			}
 			case CDX : {
-				char* dest = expandTilde( expandEnv( removeQuotes(comtab[curr].atptr[0]) ) );
+				char* dest = cleanInput(comtab[curr].atptr[0]);
 				if( chdir(dest) == -1 ) {
 	                printf("ERROR: \n%s is not a directory\n", dest);
             	}
@@ -204,15 +206,15 @@ void execute_cmd(void) {
 				break;
 			}
 			case SETENV : {
-				char* name = expandTilde( expandEnv( removeQuotes(comtab[curr].atptr[0]) ) );
-	            char* word = expandTilde( expandEnv( removeQuotes(comtab[curr].atptr[1]) ) );
+				char* name = cleanInput(comtab[curr].atptr[0]);
+	            char* word = cleanInput(comtab[curr].atptr[1]);
 	            if( setenv( name, word, 1 ) == -1 ) {
 	                printf("setenv failed, could not set %s to %s\n", name, word );
 	            }
 				break;
 			}
 			case UNSETENV : {
-				char* name = expandTilde( expandEnv( removeQuotes(comtab[curr].atptr[0]) ) );
+				char* name = cleanInput(comtab[curr].atptr[0]);
 	            if( getenv(name) ){
 	                unsetenv(name);
 	            } else {
@@ -225,13 +227,13 @@ void execute_cmd(void) {
 				break;
 			}
 			case SETALIAS : {
-				char* name = expandTilde( expandEnv( removeQuotes(comtab[curr].atptr[0]) ) );
-	            char* word = expandTilde( expandEnv( removeQuotes(comtab[curr].atptr[1]) ) );
+				char* name = cleanInput(comtab[curr].atptr[0]);
+	            char* word = cleanInput(comtab[curr].atptr[1]);
 				setalias(name, word);
 				break;
 			}
 			case UNALIAS : {
-				char* name = expandTilde( expandEnv( removeQuotes(comtab[curr].atptr[0]) ) );
+				char* name = cleanInput(comtab[curr].atptr[0]);
 				removealias(name);
 				break;
 			}
