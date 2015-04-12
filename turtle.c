@@ -2,6 +2,16 @@
 #include "y.tab.h"
 #include "turtle.h"
 
+alias aliastab[MAXALIAS];
+COMMAND comtab[MAXCMDS];
+int currcmd;
+int aliasno;
+char *aliasroot;
+int yylex();
+int yylineno;
+char *yytext;
+char **environ;
+
 void shellinit(void) {
 	currcmd = 0;
 	aliasno = 0;
@@ -90,14 +100,33 @@ void execute_cmd(void) {
 	
 }
 
+void shellSplash(){
+    // Intro Splash
+    printf("                _,.---.---.---.--.._                \n");
+    printf("            _.-' `--.`---.`---'-. _,`--.._          \n");
+    printf("           /`--._ .'.     `.     `,`-.`-._\\        \n");
+    printf("          ||   \\  `.`---.__`__..-`. ,'`-._/        \n");
+    printf("     _  ,`\\ `-._\\   \\    `.    `_.-`-._,``-.     \n");
+    printf("  ,`   `-_ \\/ `-.`--.\\    _\\_.-'\\__.-`-.`-._`.  \n");
+    printf(" (_.o> ,--. `._/'--.-`,--`  \\_.-'       \\`-._ \\  \n");
+    printf("  `---'    `._ `---._/__,----`           `-. `-\\   \n");
+    printf("            /_, ,  _..-'                    `-._\\  \n");
+    printf("            \\_, \\/ ._(     Welcome to the         \n");
+    printf("             \\_, \\/ ._\\     Turtle Shell         \n");
+    printf("              `._,\\/ ._\\       Made by Sean Thomas\n");
+    printf("                `._// ./`-._     and Kevin McDonald \n");
+    printf("                  `-._-_-_.-'                       \n");
+}
+
 main(){
     // set environment variables
     // set main settings
 	shellinit();
+	shellSplash();
 
     while(1){
         // shell loop
-        printf(TURTLE_PROMPT);
+        TURTLE_PROMPT;
         yyparse();
         execute_cmd();
     }

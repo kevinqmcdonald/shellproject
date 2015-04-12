@@ -5,18 +5,17 @@
 %}
 
 %%
-/* rules */
 
-bye							return BYE;
-cd							return CD;
+bye						return BYE;
+cd						return CD;
 alias						return ALIAS;
 unalias						return UALIAS;
 setenv						return SET;
 unsetenv					return UNSET;
 printenv					return PENV;
-pwd							return PwD;
+pwd						return PwD;
 [a-zA-Z0-9\.\/-]+			{ 
-								yylval.s=strdup(yytext); 
+								yylval.string=strdup(yytext); 
 								return WORD;
 							} 
 "${"[a-zA-Z0-9]+"}"			{
@@ -34,15 +33,11 @@ pwd							return PwD;
 								return WORD;
 							}
 "|"							return PIPE;
-"\\"						return BACKSLASH;
-\"							return QUOTE;
-"\\"[<>|&\]					/* ignore escape chars */;
 [ \t]+						/* ignore whitespace */;
 "<"							return LT;
 ">"							return GT;
 "&"							return AMP;
 "\n"						return 0;
-%%
 
 %% //subroutines
 
@@ -58,4 +53,3 @@ void parse_scan_string(char* str)
 	yylex_destroy();
 }
 
-%%

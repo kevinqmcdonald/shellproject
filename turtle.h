@@ -11,7 +11,20 @@
 #ifndef TURTLE_H
 #define TURTLE_H
 
-#define TURTLE_PROMPT "tsh $$"
+#define TURTLE_PROMPT printf("%s\n tsh $ ", getPWD) 
+#define getHOME getenv("HOME")
+#define getPWD getenv("PWD")
+
+#define NIL(x) (x *) 0
+#define copystring(a, b) strcpy((a=(char *)malloc(strlen(b)+1)), b)
+#define mkstr(a) (char *)makestring(a)
+#define Allocate(t) (t *)malloc(sizeof(t))
+#define turtErr(s) yyerror(s)
+
+// Create booleans
+typedef int bool;
+#define TRUE (1==1)
+#define FALSE (!TRUE)
 
 #define CDX 1
 #define CHD 2
@@ -47,18 +60,19 @@
      int     infd;
      int     outfd;
      int     nargs;
-     ARGTAB *atptr;
+     //ARGTAB *atptr;
+     char *atptr[MAXARGS];
  }  COMMAND;
 
 /* Alias Structure */
- struct alias {
+ typedef struct alias_struct {
      int    used;
      char  *alname;
      char  *alstring;
- };
+ } alias;
 
 /* externals */
- extern struct alias aliastab[];
+ extern alias 	    aliastab[];
  extern COMMAND      comtab[];
  extern int         currcmd;
  extern int         aliasno;
@@ -67,3 +81,4 @@
  extern int         yylineno;
  extern char        *yytext;
  extern char        **environ;
+#endif

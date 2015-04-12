@@ -14,12 +14,11 @@
     char *string;
 }
 
-%token <i> LT GT AMP PIPE 
+%token <i> LT GT AMP PIPE SET UNSET PENV
 %token <i> CD BYE ALIAS UALIAS PwD 
 %token <string> WORD VARIABLE
 
 
-% start
 
 %%
 
@@ -160,34 +159,42 @@
     printenv :
         PENV
         {
-            comtable[currcmd].comname = "printenv";
-            comtable[currcmd].code = PRINTENV;
+            comtab[currcmd].comname = "printenv";
+            comtab[currcmd].code = PRINTENV;
         };
 
     setenv :
         SET WORD WORD
         {
-            comtable[currcmd].comname = "setenv";
-            comtable[currcmd].code = SETENV;
+            comtab[currcmd].comname = "setenv";
+            comtab[currcmd].code = SETENV;
         };
+
+    unsetenv :
+        UNSET WORD
+        {
+            comtab[currcmd].comname = "unsetenv";
+            comtab[currcmd].code = UNSET;
+        }; 
 
     printalias :
         ALIAS
         {
-            comtable[currcmd].comname = "printalias";
-            comtable[currcmd].code = PRINTALIAS;
+            comtab[currcmd].comname = "printalias";
+            comtab[currcmd].code = PRINTALIAS;
         };
 
     setalias :
         ALIAS WORD WORD
         {
-            comtable[currcmd].comname = "setalias";
-            comtable[currcmd].code = SETALIAS;
+            comtab[currcmd].comname = "setalias";
+            comtab[currcmd].code = SETALIAS;
         };
 
     removealias :
         UALIAS
         {
-            comtable[currcmd].comname = "unalias";
-            comtable[currcmd].code = UNALIAS;
+            comtab[currcmd].comname = "unalias";
+            comtab[currcmd].code = UNALIAS;
         };
+
