@@ -19,14 +19,6 @@
 %token <i> CD BYE ALIAS UALIAS PwD 
 %token <string> WORD VARIABLE
 
-=======
-%token <i> LT GT AMP PIPE SET UNSET PENV
-%token <i> CD BYE ALIAS UALIAS PwD 
-%token <string> WORD VARIABLE
-
-
-
->>>>>>> f8dfcaf88fbc8b929afd45899ab69341b6565c8f
 %%
 
     commands : /* empty */
