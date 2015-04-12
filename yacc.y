@@ -1,182 +1,193 @@
 %{
 #include "turtle.h"
-#include "bicmd.h"
-/*******************************************************************************
- *             yacc.y contains all specs for the parser generator              *       
- *******************************************************************************
-*/
 
 /* parser local working data section */
- COMMAND *q, *p;
- int    pfd[2];
+ extern char *yytext;
+
+ void yyerror(const char *s) {
+    fprintf(stderr, "ERR: %s", s);
+ }
 %}
 
 %union {
     int i;
-    char *s;
-    char *w;
+    char *string;
 }
 
-%token <i> LT GT AMP LPAREN RPAREN PATH PIPE DOT DDOT DEBUG
-%token <i> SET PROMPT CD BYE ALIAS UNALIAS PwD EXTEND
-%token <i> ALIASLOOP
-%token <w> WORD FILE
-%token <s> STRING
+%token <i> LT GT AMP PIPE 
+%token <i> CD BYE ALIAS UALIAS PwD 
+%token <string> WORD VARIABLE
 
-%token <w> cmd.file
 
-%start cmd
+% start
 
 %%
 
-cmd:            builtin.cmd { 
-                    eventcount++; 
-                }
-            |   builtin.cmd LT WORD {
-                    turtErr("illegal input redirection");
-                    undoit(); 
-                    bicmd = 0;
-                }
-            |   builtin.cmd LT STRING {
-                    turtErr("illegal input redirection");
-                    undoit(); 
-                    bicmd = 0;
-                }
-            |   alias.cmd {
-                    eventcount++;
-                }
-            |   alias.cmd LT WORD {
-                    turtErr("illegal input redirection");
-                    bicmd = 0;
-                }
-            |   alias.cmd LT STRING {
-                    turtErr("illegal input redirection");
-                    bicmd = 0;
-                }
-            |   other.cmd {
-                    eventcount++;
-                    builtin = 0;
-                }
+    commands : /* empty */
+        |   commands command;
 
-builtin.cmd:    SET PATH dir.list useless.redir {
-                    bicmd = SETPATH;
-                }
-            |   SET PATH { 
-                    pathleng = 0;
-                    bicmd = SETPATH;
-                }
-            |   SET PROMPT STRING { 
-                    bicmd = SETPROMPT;
-                    bistr = mkstr($3);
-                } useless.redir
-            |   SET PROMPT {
-                    bicmd = SETPROMPT;
-                    bistr = mkstr("");
-                } useless.redir
-            |   SET {
-                    bicmd = SETT;
-                }
-            |   SET GT WORD {
-                    bicmd = SETT;
-                    bioutf = 1;
-                    bistr = mkstr($3);
-                }
-            |   SET GT STRING {
-                    bicmd = SETT;
-                    bioutf = 1;
-                    bistr = mkstr($3);
-                }
-            |   SET GT GT WORD {
-                    bicmd = SETT;
-                    bioutf = 1;
-                    bistr = mkstr($3);
-                    append = 1;
-                }
-            |   SET GT GT STRING {
-                    bicmd = SETT;
-                    bioutf = 1;
-                    bistr = mkstr($3);
-                    append = 1;
-                }
-            |   CD WORD useless.redir {
-                    bicmd = CDX;
-                    bistr = mkstr($2);
-                }
-            |   CD STRING useless.redir {
-                    bicmd = CDX;
-                    bistr = mkstr($2);
-                }
-            |   CD {
-                    bicmd = CHD;
-                }
-            |   UNSET {
-                    bicmd = UNSET;
-                }
-            |   UNSET WORD {
-                    bicmd = UNSET;
-                    bistr = mkstr($2);
-                }
-            |   UNSET STRING {
-                    bicmd = UNSET;
-                    bistr = mkstr($2);
-                }
-            |   PENV {
-                    bicmd = PRINTENV;
-                }
-simple.cmd:     cmd.file {
-                    commtab[currcmd].comname = mkstr($1);
-                    commtab[currcmd].atptr = NIL(ARGTAB);
-                    commtab[currcmd].nargs = 0;
-                    /* First arg is reserved for the command */
-                }
-            |   cmd.file  arguments {
-                    commtab[currcmd].comname = mkstr($1);
-                    commtab[currcmd].nargs = currarg;
-                }
-            ;
-cmd.file:       WORD {
-                    $$ = $1;
-                }
-            |   STRING {
-                    $$ = $1;
-                }
-            ;
-arguments:      WORD {
-                    (p = &comtab[currcmd])->atptr = Allocate(ARGTAB);
-                    currarg = 1;
-                    p->atptr->args[currarg++] = mkstr($1);
-                }
-            |   STRING {
-                    (p = &comtab[currcmd])->atptr = Allocate(ARGTAB);
-                    currarg = 1;
-                    p->atptr->args[currarg++] = mkstr($1);
-                }
-            |   arguments WORD {
-                    p->atptr->args[currarg++] = mkstr($2);
-                }
-            |   arguments STRING {
-                    p->atptr->args[currarg++] = mkstr($2);
-                }
-            ;
-input:          LT WORD {
-                    strcpy( srcf, $2 );
-                    comtab[0].infd = BADFD;
-                }
-            ;
-output:         GT WORD {
-                    strcpy( distf, $2 );
-                    comtab[currcmd-1].outfd = BADFD;
-                }
-            |   GT GT WORD {
-                    strcpy( distf, $3 );
-                    comtab[currcmd-1].outfd = BADFD;
-                    append = 1;
-                }
-            ;
-words:          WORD WORD {
+    command :
+        byebye
+        |
+        whereami
+        |
+        changedir
+        |
+        argument
+        |
+        printenv
+        |
+        setenv
+        |
+        unsetenv
+        |
+        printalias
+        |
+        setalias
+        |
+        removealias
+        ;
 
-                }
-            |   words WORD {
+    byebye :
+        BYE
+        {
+            printf("Seeya\n");
+            exit(0);
+        };
 
+    whereami :
+        PwD
+        {
+            char cwd[1024];
+            getcwd(cwd, sizeof(cwd));
+            printf("%s\n", cwd);
+
+            comtab[currcmd].comname = "pwd";
+            comtab[currcmd].code = PWD;
+        };
+
+    changedir :
+        CD
+        {
+            char *home = getenv("HOME");
+            chdir(home);
+
+            comtab[currcmd].comname = "cd home";
+            comtab[currcmd].code = CHD;
+        }
+        |
+        CD WORD
+        {
+            comtab[currcmd].comname = "cd dir";
+            comtab[currcmd].code = CDX;
+            comtab[currcmd].atptr[0] = $2;
+            comtab[currcmd].nargs++;
+        };
+
+    argument :
+        WORD
+        {
+            // WORD is either external command,
+            if(comtab[currcmd].external == 0) {
+                comtab[currcmd].external = 1;
+                comtab[currcmd].comname = $1;
+            } // or an argument
+            else {
+                int tmp = comtab[currcmd].nargs;
+
+                if(tmp < MAXARGS) {
+                    comtab[currcmd].atptr[tmp] = $1;
+                    comtab[currcmd].nargs++;
                 }
-            ;
+            }
+        }
+        |
+        argument WORD
+        {
+            int tmp = comtab[currcmd].nargs;
+
+            if(tmp < MAXARGS) {
+                comtab[currcmd].atptr[tmp] = $2;
+                comtab[currcmd].nargs++;
+            }
+        }
+        |
+        command WORD
+        {
+            int tmp = comtab[currcmd].nargs;
+
+            if(tmp < MAXARGS) {
+                comtab[currcmd].atptr[tmp] = $2;
+                comtab[currcmd].nargs++;
+            }
+        }
+        |
+        VARIABLE
+        {
+            char *varname = getenv($1);
+            if(varname == NULL)
+                printf("Variable %s does not exist", $1);
+            else
+                printf("%s\n", getenv($1));
+        }
+        |
+        argument VARIABLE
+        {
+            int tmp = comtab[currcmd].nargs;
+
+            if(tmp < MAXARGS) {
+                char *varname = getenv($2);
+                comtab[currcmd].atptr[tmp] = varname;
+                comtab[currcmd].nargs++;
+            }
+        }
+        |
+        command VARIABLE
+        {
+            int tmp = comtab[currcmd].nargs;
+
+            if(tmp < MAXARGS) {
+                char *varname = getenv($2);
+                if(varname == NULL)
+                    printf("Variable %s does not exist", $2);
+                else {
+                    comtab[currcmd].atptr[tmp] = varname;
+                    comtab[currcmd].nargs++;
+                }
+            }
+        };
+
+    printenv :
+        PENV
+        {
+            comtable[currcmd].comname = "printenv";
+            comtable[currcmd].code = PRINTENV;
+        };
+
+    setenv :
+        SET WORD WORD
+        {
+            comtable[currcmd].comname = "setenv";
+            comtable[currcmd].code = SETENV;
+        };
+
+    printalias :
+        ALIAS
+        {
+            comtable[currcmd].comname = "printalias";
+            comtable[currcmd].code = PRINTALIAS;
+        };
+
+    setalias :
+        ALIAS WORD WORD
+        {
+            comtable[currcmd].comname = "setalias";
+            comtable[currcmd].code = SETALIAS;
+        };
+
+    removealias :
+        UALIAS
+        {
+            comtable[currcmd].comname = "unalias";
+            comtable[currcmd].code = UNALIAS;
+        };
