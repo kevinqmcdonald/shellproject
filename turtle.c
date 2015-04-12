@@ -198,6 +198,9 @@ void execute_cmd(void) {
 				if( chdir(dest) == -1 ) {
 	                printf("ERROR: \n%s is not a directory\n", dest);
             	}
+            	char pwd[5000];
+            	getcwd( pwd, sizeof(pwd) );
+            	setenv("PWD", pwd, 1);
 				break;
 			}
 			case SETENV : {
