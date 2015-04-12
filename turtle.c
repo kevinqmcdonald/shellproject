@@ -21,6 +21,7 @@ void shellinit(void) {
 	aliasno = 0;
 	aliasroot = NULL;
 	aliasDepth = 0;
+	ignoreEOF = 0;
 }
 
 int set_env(char *name, char *value) {
@@ -367,6 +368,9 @@ main(){
     // set main settings
 	shellinit();
 	shellSplash();
+
+	// Disable interrupt signals, i.e., keyboard interrupts
+	signal(SIGINT, SIG_IGN);
 
     while(1){
         // shell loop
