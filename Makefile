@@ -1,5 +1,5 @@
 PROGRAM = shell
-LEX     = lex
+LEX     = flex
 YACC    = yacc
 YFLAGS  = -d
 CC      = gcc 

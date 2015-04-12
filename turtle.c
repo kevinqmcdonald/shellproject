@@ -32,11 +32,13 @@ int unset_env(char *name) {
 }
 
 void print_env(void) {
-        extern char **environ;
-        int i = 0;
-	for(i = 0; environ[i]; i++) {
-		printf("%s\n", environ[i]); 
-	}
+  int i = 1;
+  char *s = *environ;
+
+  for (; s; i++) {
+    printf("%s\n", s);
+    s = *(environ+i);
+  }
 }
 
 void printalias(void) {
