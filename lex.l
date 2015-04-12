@@ -14,6 +14,11 @@ setenv						return SET;
 unsetenv					return UNSET;
 printenv					return PENV;
 pwd						return PwD;
+<<EOF>>						{
+								if(ignoreEOF == 1)
+									return 0;
+								return BYE;
+							}
 [a-zA-Z0-9\.\/-]+			{ 
 								yylval.string=strdup(yytext); 
 								return WORD;
@@ -46,7 +51,7 @@ int yywrap(void)
 	return 1;
 }
 
-void parse_scan_string(char* str)
+void parse_string(char* str)
 {
 	yy_scan_string(str);
 	yyparse();

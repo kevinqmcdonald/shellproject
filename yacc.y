@@ -45,6 +45,8 @@
         setalias
         |
         removealias
+        |
+        redir
         ;
 
     byebye :
@@ -166,6 +168,8 @@
     setenv :
         SET WORD WORD
         {
+            comtab[currcmd].atptr[0] = $2;
+            comtab[currcmd].atptr[1] = $3;
             comtab[currcmd].comname = "setenv";
             comtab[currcmd].code = SETENV;
         };
@@ -174,8 +178,9 @@
         UNSET WORD
         {
             comtab[currcmd].comname = "unsetenv";
-            comtab[currcmd].code = UNSET;
-        }; 
+            comtab[currcmd].code = UNSETENV;
+            comtab[currcmd].atptr[0] = $2;
+        };
 
     printalias :
         ALIAS
@@ -187,14 +192,39 @@
     setalias :
         ALIAS WORD WORD
         {
+            comtab[currcmd].atptr[0] = $2;
+            comtab[currcmd].atptr[1] = $3;
             comtab[currcmd].comname = "setalias";
             comtab[currcmd].code = SETALIAS;
         };
 
     removealias :
-        UALIAS
+        UALIAS WORD
+        {
+            comtab[currcmd].atptr[0] = $2;
+            comtab[currcmd].comname = "unalias";
+            comtab[currcmd].code = UNALIAS;
+        };
+
+    redir :
+        GT WORD
+        {
+            comtab[currcmd].outfd = $2;
+            printf("Output has been redirected to %s\n", $2);
+        }
+        |
+        LT WORD
+        {
+            comtab[currcmd].infd = $2;
+            printf("Input has been redirected to %s\n", $2);
+        }
+        |
+        GT GT WORD
         {
             comtab[currcmd].comname = "unalias";
             comtab[currcmd].code = UNALIAS;
+            comtab[currcmd].outfd = $3;
+            comtab[currcmd].append = 1;
+            printf("Output has been appended to %s\n", $3);
         };
 
