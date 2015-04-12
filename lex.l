@@ -9,6 +9,7 @@ alias						return ALIAS;
 unalias						return UNALIAS;
 setenv						return SET;
 unsetenv					return UNSET;
+printenv					return PENV;
 pwd							return PwD;
 prompt						return PROMPT;
 PATH						return PATH;

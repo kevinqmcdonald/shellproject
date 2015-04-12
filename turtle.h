@@ -2,7 +2,8 @@
  *   turtle.h contains all data structures and Constants for the turtle shell  *
  *******************************************************************************
 */
- 
+#include <stdio.h>
+
 #ifndef TURTLE_H
 #define TURTLE_H
 
@@ -12,6 +13,8 @@
 #define SETPROMPT 4
 #define SETPATH 5
 #define ALIAS 6
+#define UNALIAS 7
+#define PRINTENV 8
 
 #define MAXCMDS 50
 #define MAXARGS 300

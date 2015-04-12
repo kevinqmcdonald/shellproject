@@ -108,7 +108,21 @@ builtin.cmd:    SET PATH dir.list useless.redir {
                 }
             |   CD {
                     bicmd = CHD;
-            }
+                }
+            |   UNSET {
+                    bicmd = UNSET;
+                }
+            |   UNSET WORD {
+                    bicmd = UNSET;
+                    bistr = mkstr($2);
+                }
+            |   UNSET STRING {
+                    bicmd = UNSET;
+                    bistr = mkstr($2);
+                }
+            |   PENV {
+                    bicmd = PRINTENV;
+                }
 simple.cmd:     cmd.file {
                     commtab[currcmd].comname = mkstr($1);
                     commtab[currcmd].atptr = NIL(ARGTAB);
