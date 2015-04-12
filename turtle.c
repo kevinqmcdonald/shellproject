@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <pwd.h>
 #include "y.tab.h"
 #include "turtle.h"
 
@@ -28,10 +30,10 @@ int unset_env(char *name) {
 }
 
 void print_env(void) {
-	int i = 0;
-	while(environ[i]) {
-		printf("%s\n", environ[i]);
-		i++;
+        extern char **environ;
+        int i = 0;
+        while(environ[i]) {
+            printf("%s\n", environ[i++] );
 	}
 }
 
@@ -97,6 +99,22 @@ int removealias(char *name) {
 	return SYSERR;
 }
 
+
+char *replace(char *input, char *target, char * replacement) {
+    static char temp[4096];
+    char *point;
+    if( !(point = strstr(input, target) ) ) {
+        return input; 
+    }
+    
+    strncpy(temp, input, point-input);
+    temp[point-input] = '\0';
+    
+    sprintf(temp+(point-input), "%s%s", replacement, point+strlen(target));
+    
+    return temp;
+}
+
 char * removeQuotes( char* in ) {
     char * out = in;
     if( out[0] == '"') {
@@ -128,7 +146,7 @@ char * expandEnv( char* in ) {
             envVar = envVar + 2;
             envVar[i-envStart-2] = '\0';
             
-            out = replace( out, temp, getenv(var) );
+            out = replace( out, temp, getenv(envVar) );
         }
     
     }
@@ -139,15 +157,15 @@ char * expandTilde( char * in ) {
     char * out = in;
     int i;
     if( strlen(out) == 1 ) {
-        return replace( out, "~", HOME );
+        return replace( out, "~", getHOME );
     }
     if( out[0] == '~' && out[1] == '/' ) {
-        return replace( out, "~", HOME );
+        return replace( out, "~", getHOME );
     }
     if( out[0] == '~' && strlen(out) > 1 ) {
         out++;
-        struct passwd *pass = getpwnam(out);
-        if( *pass != NULL ) {
+        if( getpwnam(out) != NULL ) {
+        	struct passwd *pass = getpwnam(out);
             char temp[5000];
             strcpy(temp, "/home/");
             return strcat(temp, pass->pw_name);
