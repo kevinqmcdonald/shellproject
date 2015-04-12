@@ -44,8 +44,9 @@
      char   *comname;
      int     code;
      int     external;
-     int     infd;
-     int     outfd;
+     int     append;
+     char    *infd;
+     char    *outfd;
      int     nargs;
      ARGTAB *atptr;
  }  COMMAND;
@@ -63,6 +64,7 @@
  extern int         currcmd;
  extern int         aliasno;
  extern char        *aliasroot;
+ extern int         ignoreEOF;
  extern int         yylex();
  extern int         yylineno;
  extern char        *yytext;

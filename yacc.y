@@ -14,12 +14,9 @@
     char *string;
 }
 
-%token <i> LT GT AMP PIPE 
+%token <i> LT GT AMP PIPE PENV SET UNSET
 %token <i> CD BYE ALIAS UALIAS PwD 
 %token <string> WORD VARIABLE
-
-
-% start
 
 %%
 

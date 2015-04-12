@@ -5,7 +5,6 @@
 %}
 
 %%
-/* rules */
 
 bye							return BYE;
 cd							return CD;
@@ -41,7 +40,7 @@ pwd							return PwD;
 "|"							return PIPE;
 "\\"						return BACKSLASH;
 \"							return QUOTE;
-"\\"[<>|&\]					/* ignore escape chars */;
+"\\"[<>|&]					/* ignore escape chars */;
 [ \t]+						/* ignore whitespace */;
 "<"							return LT;
 ">"							return GT;
