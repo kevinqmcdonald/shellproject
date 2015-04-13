@@ -39,7 +39,7 @@ Built-ins
 
 Extras
 ----------
-1. input redirection
+1. output redirection
 2. path name searching
 3. executes external commands
 
