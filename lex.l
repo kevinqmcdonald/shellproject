@@ -26,8 +26,8 @@ pwd						return PwD;
 "${"[a-zA-Z0-9]+"}"			{
 								char sub[yyleng-2];
 								strncpy(sub, yytext+2, (yyleng-3));
-								sub[yyleng-3] = "\0";
-								yylval.string=strdup(yytext);
+								sub[yyleng-3] = '\0';
+								yylval.string=strdup(sub);
 								return VARIABLE;
 							}
 \"(\\.|[^"\n])*\"			{

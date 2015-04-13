@@ -118,7 +118,7 @@
         {
             char *varname = getenv($1);
             if(varname == NULL)
-                printf("Variable %s does not exist", $1);
+                printf("Variable %s does not exist\n", $1);
             else
                 printf("%s\n", getenv($1));
         }
@@ -141,7 +141,7 @@
             if(tmp < MAXARGS) {
                 char *varname = getenv($2);
                 if(varname == NULL)
-                    printf("Variable %s does not exist", $2);
+                    printf("Variable %s does not exist\n", $2);
                 else {
                     comtab[currcmd].atptr[tmp] = varname;
                     comtab[currcmd].nargs++;
@@ -201,12 +201,14 @@
         GT WORD
         {
             comtab[currcmd].outfd = $2;
+            ofileredir = 1;
             printf("Output has been redirected to %s\n", $2);
         }
         |
         LT WORD
         {
             comtab[currcmd].infd = $2;
+            ifileredir = 1;
             printf("Input has been redirected to %s\n", $2);
         }
         |

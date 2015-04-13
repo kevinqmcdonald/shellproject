@@ -22,6 +22,8 @@ void shellinit(void) {
 	aliasroot = NULL;
 	aliasDepth = 0;
 	ignoreEOF = 0;
+	ofileredir = 0;
+	ifileredir = 0;
 }
 
 int set_env(char *name, char *value) {
@@ -33,19 +35,25 @@ int unset_env(char *name) {
 }
 
 void print_env(void) {
-  int i = 1;
-  char *s = *environ;
-
-  for (; s; i++) {
-    printf("%s\n", s);
-    s = *(environ+i);
+  int i = 0;
+  while(environ[i]) {
+  	if(ofileredir) {
+  		fputs(environ[i++], comtab[curr].outfd);
+  		fputs("\n", comtab[curr].outfd);
+  	}
+  	else
+  		printf("%s\n", environ[i++]);
   }
 }
 
 void printalias(void) {
 	int i = 0;
 	for(i; i<aliasno; i++) {
-		printf("%s <=> %s\n", aliastab[i].alname, aliastab[i].alstring);
+		if(ofileredir) {
+			fprintf(comtab[curr].outfd, "%s <=> %s\n", aliastab[i].alname, aliastab[i].alstring);
+		}
+		else
+			printf("%s <=> %s\n", aliastab[i].alname, aliastab[i].alstring);
 	}
 }
 
@@ -186,6 +194,7 @@ char * cleanInput( char * in ) {
 void execute_cmd(void) {
 	currcmd = currcmd % MAXCMDS;
 	int curr = currcmd;
+	FILE *f;
 
 	if(comtab[curr].external == 0) {
 		// Built-in Command
@@ -229,7 +238,22 @@ void execute_cmd(void) {
 				break;
 			}
 			case PRINTENV : {
-				print_env();
+				if(ofileredir) {
+					if(comtab[curr].append) {
+						f = fopen(comtab[curr].outfd, "a");
+					}
+					else {
+						f = fopen(comtab[curr].outfd, "w");
+					}
+
+					if(f == NULL)
+						return SYSERR;
+				}
+				else
+					print_env();
+
+				if(ofileredir)
+					fclose(f);
 				break;
 			}
 			case SETALIAS : {
@@ -244,7 +268,19 @@ void execute_cmd(void) {
 				break;
 			}
 			case PRINTALIAS : {
-				printalias();
+				if(ofileredir) {
+					if(comtab[curr].append) {
+						f = fopen(comtab[curr].outfd, "a");
+					}
+					else {
+						f = fopen(comtab[curr].outfd, "w");
+					}
+				}
+				else
+					printalias();
+
+				if(ofileredir)
+					fclose(f);
 				break;
 			}
 			case PWD : {
